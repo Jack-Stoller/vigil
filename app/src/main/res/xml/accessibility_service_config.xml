@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<accessibility-service
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityFeedbackType="feedbackAllMask"
+    android:accessibilityFlags="flagDefault"
+    android:packageNames="com.jackstoller.vigil"
+    android:notificationTimeout="100"
+    android:description="@string/accessibility_service_description"
+    android:settingsActivity="com.jackstoller.vigil.SettingsActivity"
+    android:canRequestTouchExplorationMode="true"
+    android:canPerformGestures="true"
+    android:accessibilityEventTypes="typeAllMask" />

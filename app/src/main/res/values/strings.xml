@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Vigil</string>
+    <string name="accessibility_service_description">This service is used to log key strokes as a test</string>
+</resources>
