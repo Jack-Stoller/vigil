@@ -40,6 +40,11 @@ class EventLoggerDatabase(context: Context) : SQLiteOpenHelper(context, "events.
         db.insert("events", null, values)
     }
 
+    fun clearEvents() {
+        val db = writableDatabase
+        db.delete("events", null, null)
+    }
+
     fun getAllEvents(): List<EventEntry> {
         val db = readableDatabase
         val cursor = db.rawQuery("SELECT * FROM events ORDER BY timestamp DESC", null)

@@ -54,9 +54,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -138,64 +140,83 @@ fun MainScreen(viewModel: MainViewModel, promptEnableAccessibilityService: () ->
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            Text(
-                buildAnnotatedString {
-                    append("Vigil Status: ")
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    buildAnnotatedString {
+                        append("Vigil Status: ")
 
-                    if (isServiceEnabled.value) {
-                        withStyle(style = SpanStyle(color = Color.Green)) {
-                            append("✅ Enabled")
-                        }
-                    } else {
-                        withStyle(style = SpanStyle(color = Color.Red)) {
-                            append("️🚫 Disabled")
+                        if (isServiceEnabled.value) {
+                            withStyle(style = SpanStyle(color = Color.Green)) {
+                                append("✔ Enabled")
+                            }
+                        } else {
+                            withStyle(style = SpanStyle(color = Color.Red)) {
+                                append("️✖ Disabled")
+                            }
                         }
                     }
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                val context = LocalContext.current
+
+                Button(onClick = { openAccessibilitySettings(context) }) {
+                    Text("Accessibility Settings")
                 }
-            )
 
-            val context = LocalContext.current
-
-            Button(onClick = { openAccessibilitySettings(context) }) {
-                Text("Open Accessibility Settings")
             }
 
             Text("Captured Events:", fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp))
 
-            // Dropdown to select event type
-            ExposedDropdownMenuBox(
-                expanded = expanded.value,
-                onExpandedChange = { expanded.value = !expanded.value }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                TextField(
-                    readOnly = true,
-                    value = selectedEventType.value ?: "All",
-                    onValueChange = {},
-                    label = { Text("Filter by Event Type") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded.value) },
-                    modifier = Modifier.menuAnchor()
-                )
-                DropdownMenu(
+                // Dropdown to select event type
+                ExposedDropdownMenuBox(
                     expanded = expanded.value,
-                    onDismissRequest = { expanded.value = false }
+                    onExpandedChange = { expanded.value = !expanded.value }
                 ) {
-                    DropdownMenuItem(
-                        text = { Text("All") },
-                        onClick = {
-                            viewModel.selectEventType(null)
-                            expanded.value = false
-                        }
+                    TextField(
+                        readOnly = true,
+                        value = selectedEventType.value ?: "All",
+                        onValueChange = {},
+                        label = { Text("Filter by Event Type") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded.value) },
+                        modifier = Modifier.menuAnchor()
                     )
-                    eventTypes.value.forEach { eventType ->
+                    DropdownMenu(
+                        expanded = expanded.value,
+                        onDismissRequest = { expanded.value = false }
+                    ) {
                         DropdownMenuItem(
-                            text = { Text(eventType) },
+                            text = { Text("All") },
                             onClick = {
-                                viewModel.selectEventType(eventType)
+                                viewModel.selectEventType(null)
                                 expanded.value = false
                             }
                         )
+                        eventTypes.value.forEach { eventType ->
+                            DropdownMenuItem(
+                                text = { Text(eventType) },
+                                onClick = {
+                                    viewModel.selectEventType(eventType)
+                                    expanded.value = false
+                                }
+                            )
+                        }
                     }
                 }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+
+                Button(onClick = { viewModel.clearEvents() }) {
+                    Text("Clear")
+                }
+
             }
 
             SwipeRefresh(
@@ -304,6 +325,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun refreshEvents() {
         loadEvents()
+    }
+
+    fun clearEvents() {
+        db.clearEvents()
+        refreshEvents()
     }
 
     private fun loadEvents() {
